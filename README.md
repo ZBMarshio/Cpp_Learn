@@ -1,55 +1,68 @@
-# C++ 与 Git 学习路线（面向 ROS 2 / 机器人）
+# 面向 ROS 2 的 C++ 学习路线
 
-适用背景：会基础 C、一些 Python，有嵌入式开发经验；系统为 Ubuntu 24.04。按每周约 5～7 小时设计，共 8 周。进度可以伸缩，能独立完成每周作品比按日期赶进度更重要。
+我有 C、Python 和嵌入式开发基础，使用 Ubuntu 24.04。目标是尽快能读懂、编写并调试 ROS 2 的 C++ 节点，不以学完一本 C++ 教材为前提。
 
-## 学习方法
+这个仓库的 Git 根目录是 `Cpp_Learn/`；`practice/` 和 `learn/` 都是其中的普通文件夹。已有的样本平均值程序在 `practice/01_cpp_basics/main.cpp`，温度转换程序在同目录的 `temperature.cpp`。后续练习优先改造这些程序，不必反复从“Hello World”开始。
 
-- 每周安排 2 次概念学习、2 次动手练习、1 次回顾；建议视频/阅读占 30%，写代码与调试占 70%。
-- C 的变量、循环、函数只做快速复习。重点放在 C++ 的对象生命周期、引用与 `const`、标准库、资源管理和构建工具上。
-- Git 从第一周起随每个练习一起用。每完成一个可运行的小功能，查看差异并提交一次；提交信息写清“做了什么”。
-- 每周保留一份简短笔记：遇到的问题、错误原因、解决方式、下一步。能向别人解释自己的代码，才算真正掌握。
+## 学习原则
 
-## 八周计划
+- 每学一个 C++ 概念，就在现有程序里用一次；能解释代码、编译通过并跑出预期结果后再前进。
+- 先掌握写普通节点所需的知识。碰到不熟悉的模板、并发或底层实现时，记录问题，等项目确实用到再深入。
+- Git 继续使用 VS Code 的“源代码管理”：完成一个小功能就查看差异、提交。编译产物不要提交。
+- C++ 和 ROS 2 交替学习。进入 ROS 2 后，遇到具体 C++ 知识缺口再回头补。
 
-| 周次 | C++ / 工程主题 | Git 主题 | 本周可检查的成果 |
-| --- | --- | --- | --- |
-| 1 | Ubuntu 命令行编译；C 与 C++ 差异；`std::string`、`std::vector`、引用、`const`、函数重载 | `init`、`status`、`add`、`commit`、`log`、`diff` | 写一个串口数据文本解析小程序：从输入中提取数值并计算平均值，至少做 3 次提交 |
-| 2 | `struct`/`class`、构造与析构、封装、头文件与源文件分离；值传递和引用传递 | `.gitignore`、查看与恢复工作区改动（`restore`） | 将解析程序拆成类和多个文件，解释对象何时创建和销毁 |
-| 3 | STL 容器与算法：`vector`、`array`、`map`、迭代器、`find_if`、`sort`；lambda | 分支 `switch -c`、合并 `merge`、冲突练习 | 实现传感器样本统计：过滤异常值、排序、求均值；在实验分支开发并合并 |
-| 4 | RAII、智能指针 `unique_ptr`/`shared_ptr`、拷贝与移动、异常基础；避免无必要的裸 `new/delete` | `revert`、`stash`；分清工作区、暂存区与提交 | 给样本统计程序增加资源封装，并用 Git 完成一次安全撤销 |
-| 5 | CMake 基础、编译选项、调试 `gdb`、简单单元测试；认识编译与链接错误 | 阅读 `log --oneline --graph`；整理提交 | 用 CMake 构建前面的程序，能定位并修复一个故意制造的 bug |
-| 6 | C++17 常用特性：`auto`、结构化绑定、`optional`；回调、lambda 捕获；适量接触线程与互斥 | 远程仓库、`fetch`、`pull`、`push`（需要时再接入托管平台） | 写一个模拟机器人状态/里程计的命令行程序，保存阶段性版本 |
-| 7 | ROS 2 Jazzy 工程结构：`colcon`、`ament_cmake`、`rclcpp` 节点、发布/订阅 | 为 ROS 2 包设置 `.gitignore`，提交源码与配置 | 在 Ubuntu 上构建一个 C++ 发布者和订阅者，并说明消息流向 |
-| 8 | 参数、定时器、服务；把前面的小程序核心逻辑接入 ROS 2 | 分支协作、合并冲突复盘；写清项目 README | 完成一个“模拟传感器 → 过滤/统计 → 发布状态”的小包，并写运行说明 |
+## 需要先会的 C++
 
-第 6～8 周可以依自己的兴趣替换成编码器、IMU、串口协议或机器人运动学小项目。你的嵌入式经验适合做“从原始数据到机器人状态”的贯穿练习。
+| 主题 | 学到什么程度 | 在 ROS 2 中的用途 |
+| --- | --- | --- |
+| `std::string`、`std::vector`、`std::array` | 会创建、遍历、传给函数 | 保存和处理消息中的文本、数组与传感器样本 |
+| 引用、`const`、值传递 | 能读懂 `const T&`，知道何时传值 | 函数参数、消息处理函数 |
+| 函数、头文件、命名空间 | 会拆分 `.hpp` / `.cpp`，理解 `std::` | 把算法与节点代码分开，使用 `rclcpp` 接口 |
+| `struct`、`class`、构造函数、成员变量 | 能写一个小类，理解对象创建与销毁 | 定义节点类，保存发布者、订阅者和状态 |
+| 继承的基本语法 | 看懂 `class MyNode : public rclcpp::Node` | 阅读和编写常见节点示例 |
+| `std::shared_ptr`、`std::make_shared` | 理解共享所有权，会按示例使用 | 节点、发布者、订阅者和消息的常见写法 |
+| lambda、回调、`std::bind` 的基本用法 | 能看懂并编写简单回调 | 定时器、订阅者、服务回调 |
+| `std::chrono`、`auto`、模板的基本形式 | 会使用时间间隔；能读懂 `Publisher<消息类型>` | 定时器与 ROS 2 的类型化接口 |
+| 编译、链接、CMake 基础 | 能看懂报错，给程序添加源文件和依赖 | 使用 `ament_cmake` 和 `colcon` 构建包 |
 
-## Ubuntu 环境与第一步
+**暂缓专题**：复杂模板与元编程、运算符重载、多重继承、手写 `new/delete`、完整的移动语义、全部 STL 容器、手写多线程。它们以后可能有用，但不是完成第一个 ROS 2 C++ 包的前置条件。`unique_ptr` 和 RAII 先知道用途，遇到资源管理或相关接口时再深入。
 
-已检查到本机有 `g++`、`cmake`、`git` 和 `gdb`。先用终端查看版本：
+## 按成果推进的四个阶段
+
+不设严格周数。每个阶段达到“完成标志”就进入下一阶段。
+
+### 1. 用现有程序补齐 C++ 基础
+
+改造 `practice/01_cpp_basics/main.cpp`：用 `std::vector<double>` 保存有效样本；把“判断有效”和“计算平均值”分别写成函数；让只读容器参数使用 `const std::vector<double>&`。测试空输入、无有效值和正常输入。
+
+完成标志：能解释 `#include`、`std::`、`const &`、`vector`、`main`，并能用下面的命令编译运行：
 
 ```bash
-g++ --version
-cmake --version
-git --version
-gdb --version
+g++ -std=c++17 -Wall -Wextra -Wpedantic -g \
+    practice/01_cpp_basics/main.cpp -o /tmp/sample_average
+/tmp/sample_average
 ```
 
-第一个 C++ 文件可以放在 `practice/01_cpp_basics/main.cpp`。手动编译时先用：
+### 2. 把算法整理成可以复用的类
 
-```bash
-g++ -std=c++17 -Wall -Wextra -Wpedantic -g practice/01_cpp_basics/main.cpp -o /tmp/cpp_first
-/tmp/cpp_first
-```
+写一个 `SensorFilter` 小类：保存有效范围和样本，提供“加入样本”“计算平均值”两个操作。把声明放进 `.hpp`，实现放进 `.cpp`，在 `main.cpp` 中调用。再写一个简单 lambda，模拟“收到一个样本就调用处理函数”。
 
-当前文件夹顶层存在一个空的、只读的 `.git` 目录，顶层尚不是可用的 Git 仓库。因此首次练习请在 `practice/` 内运行 `git init`，不要在顶层直接初始化，也不要删除现有 `.git` 目录。`practice/` 建好后，在其中依次练习 `git status`、`git add`、`git commit`、`git log`。首次提交前，如果 Git 提示缺少身份信息，可在该仓库里设置 `git config user.name "你的名字"` 和 `git config user.email "你的邮箱"`。
+完成标志：能说明构造函数、成员变量、头文件与源文件的作用；知道编译多个 `.cpp` 时为什么要把它们一起交给编译器。接着用一个最小的 `CMakeLists.txt` 构建这个程序。
 
-第 1 周的最小任务：写一个程序，读取若干个整数样本，跳过超出自定有效范围的值，输出有效样本个数与平均值。做完后尝试加入一个新功能，再用 `git diff` 看清改动并提交。
+### 3. 开始 ROS 2 C++ 节点
 
-## 课程与参考资料
+Ubuntu 24.04 对应的学习文档先按 [ROS 2 Jazzy](https://docs.ros.org/en/jazzy/) 走。依次学习工作空间、包、`colcon`、`ament_cmake`，然后照[官方 C++ 发布者与订阅者教程](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Cpp-Publisher-And-Subscriber.html)写两个节点。先看懂 `rclcpp::Node`、定时器、回调和消息类型，再改成自己的数据。
 
-- **C++ 主线**：[黑马程序员 C++ 从 0 到 1](https://www.bilibili.com/video/BV1et411b73Z/)。有基础可快速略过变量、循环等章节，重点看引用、类、对象生命周期、STL。课程较早，Windows 环境搭建部分不要照搬到 Ubuntu；编译按本页命令练习。
-- **Git 入门**：[尚硅谷 Git 教程](https://www.bilibili.com/video/BV15J411973T/)。先看基本命令、提交、分支与冲突；涉及旧界面或远程平台的操作，以当前文档为准。查概念时看 [Pro Git 中文版](https://git-scm.com/book/zh/v2) 的第 2～3 章。
-- **ROS 2 衔接**：[鱼香 ROS《动手学 ROS 2》](https://www.bilibili.com/video/BV1gr4y1Q7j5/)。可用来理解工作空间、节点与话题；课程录制较早，安装和命令应以 [ROS 2 Jazzy 官方文档](https://docs.ros.org/en/jazzy/) 为准。Ubuntu 24.04 与 Jazzy 对应，开始安装时再确认官方安装步骤。
+完成标志：能从终端构建并运行两个节点，用 `ros2 topic list`、`ros2 topic echo` 查看它们之间传递的消息；能在 `CMakeLists.txt` 和 `package.xml` 中找到对应依赖。
 
-每周回来时，把当前代码、终端命令、完整报错和“自己认为的原因”发给我；我会按你当时的进度给出下一步练习和代码反馈。
+### 4. 做一个与嵌入式背景相连的小项目
+
+做“模拟传感器 → 过滤 → 发布结果”：一个节点定时发布模拟数据；另一个节点调用第 2 阶段的过滤逻辑，计算并发布结果。随后加入参数，用参数设置有效范围；需要外部触发“清空统计”时，再学习服务。
+
+完成标志：代码能构建运行；可以从命令行观察消息、调整参数；README 中能说清如何启动、各节点负责什么。之后再按项目需要学习 QoS、服务、动作、执行器和多线程。
+
+## 读书与查资料的方法
+
+《C++ Primer Plus》可以当参考书，按上面的主题找对应章节，不必从头逐章读完。每次阅读以“解决当前代码中的一个问题”为目标。ROS 2 的命令、包结构和示例以 [Jazzy 官方教程](https://docs.ros.org/en/jazzy/Tutorials.html)为准；安装时再看[Ubuntu 安装说明](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html)。
+
+**现在的下一步**：只做第 1 阶段的第一个改动——让样本程序使用 `std::vector<double>` 保存有效输入。完成后编译运行，并在 VS Code 中查看改动、提交一次；再继续拆函数。
